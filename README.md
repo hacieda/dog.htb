@@ -1,6 +1,10 @@
 ### dog.htb
 #### https://app.hackthebox.com/machines/651
 ---
+
+Walkthrough: Dog HTB
+
+As always, we start by scanning the machine with Nmap
 ```
 Hexada@hexada ~/docker_volume/web-security$ sudo nmap -sS -sC -sV -p- -T5 --max-rate 10000 -oN dog.txt 10.10.11.58                                                                         
 Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-21 22:26 EET
@@ -31,6 +35,10 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 355.62 seconds
 ```
+
+We can see that the web server is managed via the SSH protocol, but I’m more interested in the .git directory. This directory contains the latest version of the back-end code that runs via Apache. If we find the hash of the last commit, we can use this unique hash to access the code version for analysis
+
+I’m also interested in the robots.txt file because it might contain useful information. Let's check it out
 
 ```
 Hexada@hexada ~/docker_volume/web-security$ curl http://10.10.11.58/robots.txt                                                                                                             
@@ -81,6 +89,8 @@ Disallow: /?q=user/register
 Disallow: /?q=user/login
 Disallow: /?q=user/logout
 ```
+
+The robots.txt file is used to manage access for search engines and other automated bots (called "spiders") that crawl websites. In this file, rules are defined that tell these bots which pages or directories they should not index or visit. This helps prevent unnecessary parts of the website from being indexed by search engines, which can save server resources or protect sensitive data from being indexed
 
 ```
 root@docker-desktop:~/home/local/dog# gobuster dir -u http://10.10.11.58/.git -w ~/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 50
@@ -193,35 +203,6 @@ root@docker-desktop:~/home/local/dog/dog.htb/.git# git show 8204779c764abd4c9d8d
 if (version_compare(PHP_VERSION, "5.2.0", "<")) {
   $version  = PHP_VERSION;
   echo <<<EOF
-
-ERROR: This script requires at least PHP version 5.2.0. You invoked it with
-       PHP version {$version}.
-\n
-EOF;
-  exit;
-}
-
-$script = basename(array_shift($_SERVER['argv']));
-
-if (in_array('--help', $_SERVER['argv']) || empty($_SERVER['argv'])) {
-  echo <<<EOF
-
-Generate Backdrop password hashes from the shell.
-
-Usage:        {$script} [OPTIONS] "<plan-text password>"
-Example:      {$script} "mynewpassword"
-
-All arguments are long options.
-
-  --help      Print this page.
-
-  --root <path>
-
-              Set the working directory for the script to the specified path.
-              To execute this script this has to be the root directory of your
-              Backdrop installation, e.g. /home/www/foo/backdrop (assuming
-              Backdrop is running on Unix). Use surrounding quotation marks on
-              Windows.
 ```
 
 

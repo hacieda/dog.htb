@@ -124,7 +124,7 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 root@docker-desktop:~/home/local/dog#  
 ```
 
-![image](https://github.com/user-attachments/assets/daa82b0f-d8c8-4c5f-87e2-0926231beacf)
+![image](https://github.com/user-attachments/assets/7b74b8e1-c77f-44ea-ac1d-61fe075c130c)
 ![image](https://github.com/user-attachments/assets/2d45c238-0d92-4a73-85ae-c8e1298ba2aa)
 Here’s the hash I was talking about earlier
 

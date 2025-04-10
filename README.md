@@ -38,7 +38,7 @@ Nmap done: 1 IP address (1 host up) scanned in 355.62 seconds
 
 We can see that the web server is managed via the **SSH protocol**, but I’m more interested in the `.git` directory. This directory contains the latest version of the back-end code that runs via **Apache**. If we find the hash of the last commit, we can use this unique hash to access the code version for analysis
 
-I’m also interested in the 'robots.txt' file because it might contain useful information. Let's check it out
+I’m also interested in the `robots.txt` file because it might contain useful information. Let's check it out
 
 ```
 Hexada@hexada ~/docker_volume/web-security$ curl http://10.10.11.58/robots.txt                                                                                                             
@@ -264,7 +264,6 @@ If we use this username and password, we can gain access to this account, which 
 ![image](https://github.com/user-attachments/assets/93463e01-37c8-4b8c-9092-4fb14684ef59)
 
 https://www.exploit-db.com/exploits/52021
-
 
 The issue with **Backdrop CMS version 1.27.1** is that it has bad validation of files inside module archive uploads and does not implement sandboxing mechanisms. This allows attackers to inject malicious code, which can then be executed when accessing the file at `http://dog.htb/modules/shell/shell.php`
 

@@ -38,7 +38,7 @@ Nmap done: 1 IP address (1 host up) scanned in 355.62 seconds
 
 We can see that the web server is managed via the **SSH protocol**, but I’m more interested in the `.git` directory. This directory contains the latest version of the back-end code that runs via **Apache**. If we find the hash of the last commit, we can use this unique hash to access the code version for analysis
 
-I’m also interested in the robots.txt file because it might contain useful information. Let's check it out
+I’m also interested in the 'robots.txt' file because it might contain useful information. Let's check it out
 
 ```
 Hexada@hexada ~/docker_volume/web-security$ curl http://10.10.11.58/robots.txt                                                                                                             
@@ -279,7 +279,7 @@ Your shell address: http://10.10.11.58/modules/shell/shell.php
 (myenv) Hexada@hexada ~/app/vrm/dog$
 ```
 
-Edit the 'shell/shell.php' file and insert your malicious code. For example
+Edit the `shell/shell.php` file and insert your malicious code. For example
 
 ```
 shell/shell.php
@@ -373,9 +373,9 @@ jobert
 johncusack
 ```
 
-Both jobert and johncusack have home directories under /home, confirming that they are interactive users. Since we previously found a SQL database password in settings.php, it’s worth trying this password to connect to these accounts via SSH
+Both `jobert` and `johncusack` have home directories under `/home`, confirming that they are interactive users. Since we previously found a **SQL database** password in `settings.php`, it’s worth trying this password to connect to these accounts via **SSH**
 
-From the list of users, i think we should try connecting via SSH using the SQL password retrieved from settings.php
+From the list of users, i think we should try connecting via **SSH** using the **SQL** password retrieved from `settings.php`
 
 ```
 Hexada@hexada ~/app/vrm/dog$ ssh jobert@dog.htb                                                                  
@@ -384,7 +384,7 @@ Permission denied, please try again.
 jobert@dog.htb's password: 
 ```
 
-Now, let's try to connect via johncusack
+Now, let's try to connect via `johncusack`
 
 ```
 Hexada@hexada ~/app/vrm/dog$ ssh johncusack@10.10.11.58                                                   130 ↵  

